@@ -1,86 +1,162 @@
-# Rainfall Prediction in the Melbourne Area
+# Rainfall Prediction Classifier
 
-## What is this project about?
+<div align="center">
 
-This project uses historical weather data to answer a simple question:
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Manuel-Cavina/Rainfall-prediction/blob/main/Rainfall%20Prediction%20Classifier.ipynb)
+[![Python](https://img.shields.io/badge/Python-3.x-173B57?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-F3E9D2?style=flat-square&logo=scikitlearn&logoColor=173B57)](https://scikit-learn.org/)
 
-**Will it rain tomorrow in the Melbourne area?**
+**A time-aware Machine Learning project that predicts whether it will rain the following day in the Melbourne area.**
 
-It is based on the final assignment from IBM's **Machine Learning with Python** course. It was developed in Google Colab and can also be run in VS Code.
+</div>
 
-The study uses observations from three weather stations: **Melbourne, Melbourne Airport, and Watsonia**.
+---
 
-## How does it work?
+## Project Overview
 
-A machine learning model learns patterns from past weather observations, such as temperature, humidity, wind, and pressure.
+This project uses historical weather observations to answer a binary classification question:
 
-The value we want to predict is called the **target**. In this dataset, the target is `RainTomorrow`:
+> **Will it rain tomorrow in the Melbourne area?**
 
-- `Yes`: it rained the next day.
-- `No`: it did not rain the next day.
+It was developed as the final project for IBM's **Machine Learning with Python** course and later expanded with clearer preprocessing, chronological validation, model comparison, probability evaluation and prediction traceability.
 
-Predicting a category is called **classification**. The models also estimate the probability of rain.
+The analysis covers observations from three Australian weather stations:
 
-## Main steps
+- Melbourne
+- Melbourne Airport
+- Watsonia
 
-| Step | What we do and why |
+The target variable is **RainTomorrow**:
+
+- **Yes:** rain was recorded on the following day.
+- **No:** rain was not recorded on the following day.
+
+---
+
+## Why This Project Matters
+
+Rainfall prediction is not only a classification problem. It also requires careful handling of time, missing weather measurements and imbalanced outcomes.
+
+A useful solution must avoid learning from future information, report more than accuracy and preserve enough traceability to understand how each prediction was produced.
+
+---
+
+## Machine Learning Workflow
+
+1. **Data exploration** — inspect variables, locations, target distribution and missing values.
+2. **Data cleaning** — parse dates, validate labels and exclude unusable records while preserving exclusion reasons.
+3. **Chronological split** — train on earlier observations and test on later observations to simulate future prediction.
+4. **Feature engineering** — derive Southern Hemisphere seasons from observation dates.
+5. **Preprocessing pipeline** — impute missing values, scale numerical variables and encode categorical features.
+6. **Baseline model** — compare trained models against a classifier that always predicts the majority class.
+7. **Time-aware validation** — evaluate candidates with chronological cross-validation instead of random folds.
+8. **Model comparison** — tune and compare Logistic Regression and Random Forest.
+9. **Final evaluation** — measure classification quality, probability ranking and calibration on an untouched test period.
+10. **Prediction audit** — retain dates, locations, actual outcomes, probabilities and predicted classes for traceability.
+
+---
+
+## Data Split
+
+The dataset was separated chronologically:
+
+| Partition | Rows | Observation period |
+| --- | ---: | --- |
+| Training | 6,749 | July 2008 — September 2015 |
+| Boundary buffer | 2 | September 25, 2015 |
+| Test | 1,692 | September 2015 — June 2017 |
+
+The boundary buffer prevents an observation from the training period from using a target that belongs to the test period.
+
+---
+
+## Model Selection
+
+Model selection was performed only with training-period data using three chronological validation folds.
+
+| Model | CV Average Precision | CV F1 | CV Accuracy |
+| --- | ---: | ---: | ---: |
+| Logistic Regression | 0.703 | 0.582 | 0.824 |
+| Random Forest | 0.675 | 0.521 | 0.813 |
+
+**Logistic Regression** was selected before evaluating the final test period because it achieved the strongest validation results.
+
+---
+
+## Test Results
+
+| Model | Accuracy | Rain Precision | Rain Recall | Rain F1 | Average Precision | ROC AUC |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Majority baseline | 0.763 | 0.000 | 0.000 | 0.000 | 0.237 | 0.500 |
+| **Logistic Regression** | **0.828** | **0.683** | **0.511** | **0.585** | **0.668** | **0.850** |
+| Random Forest | 0.827 | 0.723 | 0.436 | 0.544 | 0.672 | 0.856 |
+
+The selected Logistic Regression model correctly classified approximately **82.8%** of the test observations.
+
+Accuracy alone is not sufficient because the majority baseline already reaches 76.3% by predicting **No rain** every time. The selected model provides meaningful rain detection, reaching 68.3% precision and 51.1% recall for the rain class.
+
+---
+
+## Main Technologies
+
+- **Python**
+- **pandas** and **NumPy**
+- **Matplotlib** and **seaborn**
+- **scikit-learn**
+- **Google Colab** and **Jupyter Notebook**
+
+---
+
+## Repository Contents
+
+| File | Purpose |
 | --- | --- |
-| 1. Explore the data | Check the columns, weather stations, and missing values. |
-| 2. Clean the data | Prepare dates and remove unusable records, keeping a record of the reasons. |
-| 3. Split the data | Use earlier dates for training and later dates for testing. This helps us evaluate predictions on observations the model has not seen. |
-| 4. Prepare the inputs | Fill missing weather values and convert text categories into numbers. Learn these transformations from training data only. |
-| 5. Train and compare models | Compare logistic regression and Random Forest using validation periods within the training data. |
-| 6. Evaluate predictions | Check the final predictions on the test data, including missed rain and false alarms. |
+| [Rainfall Prediction Classifier.ipynb](./Rainfall%20Prediction%20Classifier.ipynb) | Complete analysis, preprocessing, model training, evaluation and exported results. |
+| [Certificate.pdf](./Certificate.pdf) | IBM Machine Learning with Python course certificate. |
+| [README.md](./README.md) | Project overview, methodology and results. |
 
-We also use a **baseline**: a simple model that always predicts the most common training category. It gives us a starting point for comparison.
+---
 
-## Tools
+## Run the Project
 
-- **Python:** programming language.
-- **pandas and NumPy:** organize and process data.
-- **Matplotlib and seaborn:** create charts.
-- **scikit-learn:** prepare data, train models, and evaluate predictions.
-- **Google Colab / VS Code:** run the notebook.
+### Google Colab
 
-## Project files
+Use the **Open in Colab** button at the top of this README and run the notebook cells in order.
 
-| File or folder | Purpose |
-| --- | --- |
-| `notebooks/` | Contains the `.ipynb` notebook: code, explanations, and charts. |
-| `requirements.txt` | Lists the Python libraries needed to run the project. |
-| `rainfall_project_outputs/` | Stores exported results and supporting records. |
-| `certificates/` | Stores the course certificate. |
+The notebook downloads the weather dataset from its original source, so internet access is required.
 
-Add your downloaded Colab notebook and certificate to their folders; they are not included in this starter package.
+### Local Environment
 
-## Run in VS Code on Windows
+Clone the repository:
 
-1. Install Python and the **Python** and **Jupyter** extensions in VS Code.
-2. Open the project folder and its terminal.
-3. Run these commands:
-
-```powershell
-py -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```bash
+git clone https://github.com/Manuel-Cavina/Rainfall-prediction.git
+cd Rainfall-prediction
 ```
 
-The first command creates a separate Python environment for the project. The second installs its libraries.
+Install the required libraries:
 
-4. Open the notebook in `notebooks/`.
-5. Select `.venv` as the notebook's **kernel** — the Python environment that runs the code.
-6. Run the cells in order. Internet access is needed to download the dataset.
+```bash
+python -m pip install pandas numpy matplotlib seaborn scikit-learn jupyter
+```
 
-If `py` is unavailable, try `python -m venv .venv` for the first command.
+Then open `Rainfall Prediction Classifier.ipynb` in VS Code or Jupyter and run the cells in order.
 
-In VS Code, skip the final cell that uses `google.colab.files.download`. That cell downloads the results ZIP in Colab; the previous export cell already saves it locally.
+The final Colab download cell can be skipped when running locally.
 
-## Results and limitations
+---
 
-Results will be added after reviewing the executed notebook. No performance scores are reported yet.
+## Limitations
 
-This is an educational project using historical data. Its results do not establish how well it will predict future weather or work in other regions.
+- The project uses historical observations from only three stations in the Melbourne area.
+- The positive rain class is less frequent than the no-rain class.
+- The model detects approximately half of the rain events at the default decision threshold.
+- These results do not guarantee the same performance on future periods, other regions or changing climate conditions.
+- This is an educational Machine Learning project and not an operational weather forecasting service.
+
+---
 
 ## Sources
 
 - [IBM Machine Learning with Python — Coursera](https://www.coursera.org/learn/machine-learning-with-python)
-- [Australian weather dataset referenced in the assignment](https://www.kaggle.com/datasets/jsphyg/weather-dataset-rattle-package/)
+- [Rain in Australia dataset — Kaggle](https://www.kaggle.com/datasets/jsphyg/weather-dataset-rattle-package)
